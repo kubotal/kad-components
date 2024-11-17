@@ -2,7 +2,7 @@
 
 components:
 
-  - name: ingress/metallb
+  - name: ingress:metallb
     version: 1.0.0
     config:
       install:
@@ -12,8 +12,10 @@ components:
       helmRepository:
         url: https://metallb.github.io/metallb
         chart: metallb
+    roles:
+      - loadBalancerBase
 
-  - name: ingress/metallb-pool
+  - name: ingress:metallb-pool
     version: 1.0.0
     config:
       timeout: 1m
@@ -26,11 +28,17 @@ components:
         remediation:
           retries: 30
           remediateLastFailure: true
+    roles:
+      - loadBalancer
+    dependsOn:
+      - loadBalancerBase
     source:
       defaultVersion: 0.1.0
       gitRepository:
         name: kad-components
         path: ./charts/metallb-pool/{version}
+    contextSchema:
+      file: _schemas_/context/metallb-pool.yaml
     values: |
       ipRanges:
         - first: {{ resolveDNS (printf "first.pool.%s" .Context.cluster.domain) }}

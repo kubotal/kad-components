@@ -4,19 +4,24 @@ components:
 
   - name: minio
     version: 1.0.0
+    protected: true
     parameters:
-      rootUser: TBD
-      rootPassword: TBD
+      rootUser: # TBD
+      rootPassword: # TBD
       storage:
-        driveSize: TBD
-        replicas: TBD
+        driveSize: # TBD
+        replicas: # TBD
         drivesPerNode: 1
         pools: 1
-      ingressName: TBD
+      ingressName: # TBD
       ingressUnsec:
         enabled: false
         host: # TBD if enabled
       ldap:
+    parametersSchema:
+      file: _schemas_/parameters/minio.yaml
+    contextSchema:
+      file: _schemas_/context/minio.yaml
     config:
       source:
         interval: "2m"
@@ -38,6 +43,9 @@ components:
         name: kad-components
         path: ./charts/minio/{version}/
     allowValues: true
+    dependsOn:
+      - ingress
+      - blockStorage
     values: |
       {{- if dig "kyverno" "namespace" "" .Context }}
       kyverno:
@@ -65,7 +73,7 @@ components:
           hosts:
             - {{ .Parameters.ingressName}}-console.{{ .Context.ingress.url }}
           tls:
-            - secretName: {{ .Meta.release.name }}-console-tls
+            - secretName: {{ .Meta.componentRelease.name }}-console-tls
               hosts:
                 - {{ .Parameters.ingressName}}-console.{{ .Context.ingress.url }}
         ingressExt:

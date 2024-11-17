@@ -1,6 +1,6 @@
 components:
 
-  - name: ingress/ingress-nginx
+  - name: ingress:ingress-nginx
     version: 1.0.0
     config:
       timeout: 1m
@@ -18,6 +18,14 @@ components:
       helmRepository:
         url: https://kubernetes.github.io/ingress-nginx
         chart: ingress-nginx
+    contextSchema:
+      file: _schemas_/context/ingress.yaml
+    roles:
+      - ingress
+      - ingress-nginx
+    dependsOn:
+      - certManager
+      - loadBalancer
     values: |
       controller:
         service:
@@ -27,13 +35,17 @@ components:
         extraArgs:
           enable-ssl-passthrough: true
 
-  - name: ingress/kubernetes
+  - name: ingress:kubernetes
     version: 1.0.0
     source:
       defaultVersion: 0.1.0
       gitRepository:
         name: kad-components
         path: ./charts/ingress-kubernetes/{version}
+    contextSchema:
+      file: _schemas_/context/ingress.yaml
+    dependsOn:
+      - ingress
     values: |
       kubernetes:
         enabled: {{ .Context.ingress.kubernetes.enabled }}

@@ -1,0 +1,35 @@
+
+components:
+
+  - name: kad-webserver
+    version: 1.0.0
+    protected: true
+    source:
+      defaultVersion: 0.4.0-snapshot
+      ociRepository:
+        url: oci://quay.io/kubotal/charts/kad-webserver
+        interval: 1m
+    parameters:
+      debug: false
+    catalogs:
+      - system
+    contextSchema:
+      file: _schemas_/context/kad-webserver.yaml
+    dependsOn:
+      - ingress
+    values: |
+      replicaCount: 1
+      clusterIssuer: {{ .Context.certificateIssuer.public }}
+      ingress:
+        host: kad.{{ .Context.ingress.url }}
+      {{- if .Parameters.debug }}
+      logger:
+        mode: dev
+        level: debug
+      image:
+        pullPolicy: Always
+      webConfig:
+        refreshPeriod: 1m
+      {{- end }}
+
+

@@ -1,25 +1,30 @@
 
 
-compositions:
+templates:
 
   - name: tools
     version: 1.0.0
+    catalogs:
+      - system
     parameters:
       namespace: kube-tools
       reloader: true
       replicator: true
       secretGenerator: true
-    schema:
-      raw: |
+    parametersSchema:
+      json: |
         {
           "$schema": "http://json-schema.org/schema#",
           "type": "object",
+          "title": "Miscellaneous Tools",
+          "descrition": "Set of optional tools",
           "additionalProperties": false,
           "required": [
           ],
           "properties": {
             "namespace": {
-              "type": "string"
+              "type": "string",
+              "default": "kube-tools"
             },
             "reloader": {
               "type": "boolean",
@@ -38,15 +43,15 @@ compositions:
             }
           }
         }
-    template: |
+    body: |
       
-      releases:
+      componentReleases:
 
       {{- if .Parameters.reloader }}
       - name: tools-reloader
         namespace: {{ .Parameters.namespace }}
         component:
-          name: tools/reloader
+          name: tools:reloader
           version: 1.0.0
       {{- end }}
 
@@ -54,7 +59,7 @@ compositions:
       - name: tools-replicator
         namespace: {{ .Parameters.namespace }}
         component:
-          name: tools/replicator
+          name: tools:replicator
           version: 1.0.0
       {{- end }}
 
@@ -62,7 +67,7 @@ compositions:
       - name: tools-secret-generator
         namespace: {{ .Parameters.namespace }}
         component:
-          name: tools/secret-generator
+          name: tools:secret-generator
           version: 1.0.0
       {{- end }}
 

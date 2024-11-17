@@ -4,6 +4,7 @@ components:
 
   - name: openldap
     version: 1.0.0
+    protected: true
     parameters:
       replicaCount: 3
       ldapDomain: # TBD (i.e: example.com)
@@ -11,6 +12,36 @@ components:
       adminPassword: # TBD
       configUser: "admin"
       configPassword: # TBD
+      customLdifFiles: # TBD
+      adminIngressHost: phpldapadmin
+      ldapIngressHost: ldap
+    catalogs:
+      - middleware
+      - identity
+    parametersSchema:
+      file:
+        _schemas_/parameters/openldap.yaml
+    usage: |
+      {{ .Meta.componentRelease.name }} LDAP server
+      <ul>
+      <li>
+      A console can be accessed using <a href="{{ .Parameters.adminIngressHost }}.{{ .Context.ingress.url }}">this link</a>
+      </li>
+      <li>
+      You can access the LDAP services using the following parameters:
+      <ul>
+      <li>host: {{ printf "%s.%s" .Parameters.ldapIngressHost .Context.cluster.domain }}</li>
+      <li>port: 636 (LDAPS)</li>
+      {{- $parts := split "." .Parameters.ldapDomain }}
+      {{- $login := .Parameters.adminUser }}
+      {{- range $parts }}
+      {{- $login = printf "%s,cn=%s" $login . }}
+      {{- end }}
+      <li>login: cn={{ $login }}</li>
+      <li>Password: {{.Parameters.adminPassword }}</li>
+      </ul>
+      </li>
+      </ul>
     config:
       source:
         interval: "2m"
@@ -29,9 +60,13 @@ components:
       gitRepository:
         name: kad-components
         path: ./charts/openldap/{version}/
+    dependsOn:
+      - ingress
+    roles:
+      - ldapLocalServer
     values: |
       openldap-stack-ha:
-        replicaCount: {{ default 2 .Context.openldap.replicaCount }}
+        replicaCount: {{ default 2 .Parameters.replicaCount }}
         replication:
           enabled: {{ if ne .Context.openldap.replicaCount 1 }}true{{else}}false{{end}}
         clusterIssuer: {{ .Context.certificateIssuer.public }}
@@ -43,28 +78,27 @@ components:
           configPassword: {{ .Parameters.configPassword }}
         initTLSSecret:
           tls_enabled: true
-          secret: {{ .Meta.release.name }}-cert    
+          secret: {{ .Meta.componentRelease.name }}-cert
         persistence:
           storageClass: {{ .Context.storageClass.data }}
         phpldapadmin:
           ingress:
             annotations:
-              cert-manager.io/cluster-issuer:  {{ .Context.certificateIssuer.public }}
+              cert-manager.io/cluster-issuer: {{ .Context.certificateIssuer.public }}
             hosts:
-              - phpldapadmin.{{ .Context.ingress.url }}
+              - {{ .Parameters.adminIngressHost }}.{{ .Context.ingress.url }}
             tls:
               - hosts:
-                  - phpldapadmin.{{ .Context.ingress.url }}
+                  - {{ .Parameters.adminIngressHost }}.{{ .Context.ingress.url }}
                 secretName: phpldapadmin-tls
         service:
-          {{ $ldap := printf "ldap.%s" .Context.cluster.domain }}
+          {{ $ldap := printf "%s.%s" .Parameters.ldapIngressHost .Context.cluster.domain }}
           annotations:
             metallb.universe.tf/loadBalancerIPs: {{ resolveDNS $ldap }}
           hosts:
             - {{ $ldap }}
-
         # Custom openldap configuration files used to override default settings
         # DO NOT FORGET to put the Root Organisation object as it won't be created while using customLdifFiles
         # To generate passwords: 'slappasswd -s myPassword' on an ldap node
         customLdifFiles:
-          {{ toYaml .Context.openldap.customLdifFiles | nindent 10 }}
+          {{ toYaml .Parameters.customLdifFiles | nindent 10 }}
