@@ -11,10 +11,10 @@ templates:
         replicas:  # TBD Must be 1 or multiple of 4
       ingressName: # TBD
       ingressUnsec: false
-      rootUser: TBD
-      rootPassword: TBD
+      rootUser: #TBD
+      rootPassword: #TBD
       ldap: # MBD (May Be Defined)
-      releaseName: TBD
+      releaseName: #TBD
       dependsOn: []
     parametersSchema:
       file: _schemas_/parameters/minio-1pool-of-1drive.yaml
@@ -53,9 +53,6 @@ templates:
       capacityGb: # TBD
       ingressName: # TBD
       ingressUnsec: false
-      admin:
-        rootUser: TBD
-        rootPassword: TBD
       ldap: # MBD (May Be Defined)
       dependsOn: []
     catalogs:
@@ -71,7 +68,7 @@ templates:
       </li>
       <li>
       You can configure an admin alias for the 'mc' CLI with the following command:
-      <code>mc alias set {{ .Meta.templateRelease.name }} https://{{ .Parameters.ingressName }}-console.{{ .Context.ingress.url }} {{ .Parameters.admin.rootUser }} {{ .Parameters.admin.rootPassword }}</code>
+      <code>mc alias set {{ .Meta.templateRelease.name }} https://{{ .Parameters.ingressName }}-console.{{ .Context.ingress.url }} {{ .Parameters.rootUser }} {{ .Parameters.rootPassword }}</code>
       </li>
       {{- if .Parameters.ldap }}
       <li>
@@ -86,8 +83,8 @@ templates:
           name: minio-1pool-of-1drive
           version: 1.0.0
           parameters:
-            rootUser: {{ .Parameters.admin.rootUser }}
-            rootPassword: {{ .Parameters.admin.rootPassword }}
+            rootUser: {{ .Parameters.rootUser }}
+            rootPassword: {{ .Parameters.rootPassword }}
             releaseName: {{ .Meta.templateRelease.name }}
             namespace: {{ .Parameters.namespace }}
             storage:
@@ -105,9 +102,6 @@ templates:
       capacityGb: # TBD
       ingressName: # TBD
       ingressUnsec: false
-      admin:
-        rootUser: TBD
-        rootPassword: TBD
       ldap: # MBD (May Be Defined)
       dependsOn: []
     catalogs:
@@ -123,7 +117,7 @@ templates:
       </li>
       <li>
       You can configure an admin alias for the 'mc' CLI with the following command:
-      <code>mc alias set {{ .Meta.templateRelease.name }} https://{{ .Parameters.ingressName }}-console.{{ .Context.ingress.url }} {{ .Parameters.admin.rootUser }} {{ .Parameters.admin.rootPassword }}</code>
+      <code>mc alias set {{ .Meta.templateRelease.name }} https://{{ .Parameters.ingressName }}-console.{{ .Context.ingress.url }} {{ .Parameters.rootUser }} {{ .Parameters.rootPassword }}</code>
       </li>
       {{- if .Parameters.ldap }}
       <li>
@@ -138,8 +132,8 @@ templates:
           name: minio-1pool-of-1drive
           version: 1.0.0
           parameters:
-            rootUser: {{ .Parameters.admin.rootUser }}
-            rootPassword: {{ .Parameters.admin.rootPassword }}
+            rootUser: {{ .Parameters.rootUser }}
+            rootPassword: {{ .Parameters.rootPassword }}
             releaseName: {{ .Meta.templateRelease.name }}
             namespace: {{ .Parameters.namespace }}
             storage:
