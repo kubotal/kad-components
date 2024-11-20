@@ -2,16 +2,16 @@
 
 templates:
 
-  - name: ingress
+  - name: metallb
     version: 1.0.0
     catalogs:
       - system
     parametersSchema:
       yaml:
         $schema: "http://json-schema.org/schema#"
-        title: Ingress controller 
+        title: Metallb
         description: |
-          Stack managing ingress.
+          Stack managing Load Balancer.
         type: object
         additionalProperties: false
         properties: {}
@@ -21,9 +21,9 @@ templates:
         type: object
         additionalProperties: true
         required:
-          - ingress
+          - metallb
         properties:
-          ingress:
+          metallb:
             type: object
             additionalProperties: true
             properties:
@@ -37,16 +37,14 @@ templates:
                     type: boolean
     body: |
       componentReleases:
-      - name: ingress-nginx
-        namespace: ingress-nginx
+      - name: metallb
+        namespace: metallb
         component:
-          name: ingress:ingress-nginx
+          name: metallb:metallb
           version: 1.0.0
       
-      {{- if .Context.ingress.kubernetes.enabled }}
-      - name: ingress-kubernetes
-        namespace: ingress-nginx
+      - name: metallb-pool
+        namespace: metallb
         component:
-          name: ingress:kubernetes
+          name: metallb:metallb-pool
           version: 1.0.0
-      {{- end }}
